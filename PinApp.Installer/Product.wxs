@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+	<Product Id="*" 
+           Name="Ping App" 
+           Language="1033" 
+           Version="!(bind.FileVersion.MainExecutable)" 
+           Manufacturer="Telesoftas" 
+           UpgradeCode="e6e6856a-30fe-4e6e-9550-7871f6ad6b73"
+    >
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    <Property Id="URL"/>
+
+    <UI>
+      <UIRef Id="WixUI_InstallDir" />
+    </UI>
+
+    <Binary Id="CUSTOM_ACTION_BINARY" SourceFile ="$(var.PingApp.Installer.CustomAction.TargetDir)PingApp.Installer.CustomAction.CA.dll"/>
+    <CustomAction Id="MyCustomAction"
+                  BinaryKey="CUSTOM_ACTION_BINARY"
+                  DllEntry="MyCustomFunction">
+    </CustomAction>
+
+    <InstallExecuteSequence>
+      <Custom Action="MyCustomAction" Before="InstallFinalize">NOT REMOVE AND URL</Custom>
+    </InstallExecuteSequence>
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+		<MediaTemplate />
+
+    <Feature Id="ProductFeature" Title="PinApp.Installer" Level="1">
+			<ComponentGroupRef Id="ProductComponents" />
+		</Feature>
+	</Product>
+
+	<Fragment>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFilesFolder">
+				<Directory Id="INSTALLFOLDER" Name="PingApp" />
+			</Directory>
+		</Directory>
+	</Fragment>
+
+	<Fragment>
+		<ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+
+      <Component Id="MainSoftwareFiles" Guid="{4D70B677-2326-451E-9741-3850C810E1B2}">
+
+        <File Id="MainExecutable" Source="$(var.PingApp.TargetPath)" KeyPath="yes"/>
+        <File Source="$(var.PingApp.TargetPath).config"/>
+        <File Source="$(var.PingApp.TargetDir)Newtonsoft.Json.dll"/>
+
+      </Component>
+
+      <Component Id="ServerAddressEdit" Guid="{B100D46E-4F34-48F7-987C-8946D3D7AFC2}">
+
+        <RegistryKey Key="SOFTWARE\[Manufacturer]\[ProductName]" Root="HKLM" >
+          <RegistryValue Name="XML_Edit.ServerAddressEdit" Type="integer" Value="1" KeyPath="yes" />
+        </RegistryKey>
+
+        <util:XmlFile Id="config.url"
+                      Action="setValue"
+                      File="[INSTALLFOLDER]/PingApp.exe.config"
+                      SelectionLanguage="XPath"
+                      Permanent="yes"
+                      ElementPath="/configuration/applicationSettings/PingApp.Properties.Settings/setting[\[]@name=&quot;url&quot;[\]]/value"
+                      Value="[URL]"
+                      Sequence="1" />
+
+      </Component>
+
+    </ComponentGroup>
+
+	</Fragment>
+</Wix>

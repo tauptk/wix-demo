@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:bal="http://schemas.microsoft.com/wix/BalExtension">
+	<Bundle
+    Name="Ping App" 
+    Version="!(bind.packageVersion.PingAppPackage)" 
+    Manufacturer="Telesoftas" 
+    UpgradeCode="8d35995e-c176-4c34-848c-edf285e2642d"
+    >
+		<BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense" />
+    <Variable Name="URL" Value="" Type="string" bal:Overridable="yes"/>
+
+		<Chain>
+      <PackageGroupRef Id="NetFx462Web"/>
+      <MsiPackage Id="PingAppPackage"
+                  SourceFile="$(var.PingApp.Installer.TargetPath)"
+                  Visible="yes"
+                  Vital="yes">
+        <MsiProperty Name="URL" Value="[URL]"/>
+      </MsiPackage>
+		</Chain>
+	</Bundle>
+</Wix>
